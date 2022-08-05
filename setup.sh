@@ -15,6 +15,7 @@ add_host_or_ignore() {
 create_nginx_conf_entry() {
     cp $1/conf.d.tmpl/$2.conf $1/conf.d/$2.conf
     sed -i "s/%NGINX_ALIAS%/$NGINX_ALIAS/g" $1/conf.d/$2.conf
+    sed -i "s/%NGINX_LEGACY_ALIAS%/$NGINX_LEGACY_ALIAS/g" $1/conf.d/$2.conf
 }
 
 gen_certs() {
