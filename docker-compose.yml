@@ -20,21 +20,7 @@ services:
       # wont get deleted along with the container
       - pictureworks-legacy-db-vol:/var/lib/mysql
       - ./pictureworks-legacy-db/my.cnf:/etc/mysql/my.cnf
-      - ./pictureworks-legacy-db/init.sql:/docker-entrypoint-initdb.d/init.sql
-  pictureworks-postgres-db:
-    container_name: pictureworks-legacy-db
-    image: postgres
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      PGDATA: /data/postgres
-    volumes:
-      - pictureworks-db-vol:/data/postgres
-    networks:
-      pictureworks:
-        ipv4_address: ${DB_IP}
-    restart: unless-stopped
+      - ./pictureworks-legacy-db/init.sql:/docker-entrypoint-initdb.d/init.sql  
   pictureworks-legacy-server:
     container_name: pictureworks-legacy-server
     image: pictureworks-legacy-server:latest
@@ -55,25 +41,21 @@ services:
           - pictureworks-legacy-server
     tty: true
     stdin_open: true
-  pictureworks-nginx:
-    container_name: pictureworks-nginx-${NGINX_IP}
-    image: pictureworks-nginx:latest
-    build:
-      context: ./
-      dockerfile: ./pictureworks-nginx/Dockerfile
+
+  pictureworks-postgres-db:
+    container_name: pictureworks-legacy-db
+    image: postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /data/postgres
     volumes:
-      - ./pictureworks-legacy/pgphptest:/var/www/legacy # root needs this
-      - ./pictureworks-nginx/conf.d:/etc/nginx/conf.d
-      - ./pictureworks-nginx/certs:/etc/ssl
-    extra_hosts:
-      - "${NGINX_ALIAS}:${NGINX_IP}"
+      - pictureworks-db-vol:/data/postgres
     networks:
       pictureworks:
-        ipv4_address: ${NGINX_IP}
-    tty: true
-    stdin_open: true
-    depends_on:
-      - pictureworks-legacy-server
+        ipv4_address: ${DB_IP}
+    restart: unless-stopped
   pictureworks-pgadmin:
     container_name: pictureworks-pgadmin
     image: dpage/pgadmin4
@@ -88,6 +70,44 @@ services:
       pictureworks:
         ipv4_address: ${PGADMIN_IP}
     restart: unless-stopped
+
+  pictureworks-server:
+    container_name: pictureworks-server
+    image: pictureworks-server:latest
+    build:
+      context: .
+      dockerfile: ./pictureworks-server/Dockerfile
+    volumes:
+      - ./pictureworks-server:/var/www/pictureworks-server
+      - ./pictureworks/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      pictureworks:
+        aliases:
+          - pictureworks-server
+    tty: true
+    stdin_open: true
+
+  pictureworks-nginx:
+    container_name: pictureworks-nginx-${NGINX_IP}
+    image: pictureworks-nginx:latest
+    build:
+      context: ./
+      dockerfile: ./pictureworks-nginx/Dockerfile
+    volumes:
+      - ./pictureworks-server:/var/www/pictureworks-server
+      - ./pictureworks-legacy/pgphptest:/var/www/legacy
+      - ./pictureworks-nginx/conf.d:/etc/nginx/conf.d
+      - ./pictureworks-nginx/certs:/etc/ssl
+    extra_hosts:
+      - "${NGINX_ALIAS}:${NGINX_IP}"
+    networks:
+      pictureworks:
+        ipv4_address: ${NGINX_IP}
+    tty: true
+    stdin_open: true
+    depends_on:
+      - pictureworks-server
+      - pictureworks-legacy-server
 networks:
   pictureworks:
     name: pictureworks-bridge
