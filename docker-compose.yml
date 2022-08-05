@@ -1,0 +1,104 @@
+version: "3.9"
+
+services:
+  pictureworks-legacy-mysql-db:
+    container_name: pictureworks-legacy-mysql-db
+    # Keep this same as target prod. I like working with 5.7 as
+    # AWS RDS does not yet have the newer version
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: ${LEGACY_DB_NAME}
+      MYSQL_USER: ${LEGACY_DB_USERNAME}
+      MYSQL_PASSWORD: ${LEGACY_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${LEGACY_DB_ROOT_PASSWORD}
+    networks:
+      pictureworks:
+        ipv4_address: ${LEGACY_DB_IP}
+    volumes:
+      # if you're confused as to why, this just makes it so that even 
+      # if we do `docker compose down` the original database
+      # wont get deleted along with the container
+      - pictureworks-legacy-db-vol:/var/lib/mysql
+      - ./pictureworks-legacy-db/my.cnf:/etc/mysql/my.cnf
+      - ./pictureworks-legacy-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+  pictureworks-postgres-db:
+    container_name: pictureworks-legacy-db
+    image: postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /data/postgres
+    volumes:
+      - pictureworks-db-vol:/data/postgres
+    networks:
+      pictureworks:
+        ipv4_address: ${DB_IP}
+    restart: unless-stopped
+  pictureworks-legacy-server:
+    container_name: pictureworks-legacy-server
+    image: pictureworks-legacy-server:latest
+    build:
+      context: .
+      dockerfile: ./pictureworks-legacy/Dockerfile
+    environment:
+      DB_SERVER: ${LEGACY_DB_IP}
+      DB_USER: ${LEGACY_DB_USERNAME}
+      DB_PWD: ${LEGACY_DB_PASSWORD}
+      DB_NAME: ${LEGACY_DB_NAME}
+    volumes:
+      - ./pictureworks-legacy/pgphptest:/var/www/legacy
+      - ./pictureworks-legacy/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      pictureworks:
+        aliases:
+          - pictureworks-legacy-server
+    tty: true
+    stdin_open: true
+  pictureworks-nginx:
+    container_name: pictureworks-nginx-${NGINX_IP}
+    image: pictureworks-nginx:latest
+    build:
+      context: ./
+      dockerfile: ./pictureworks-nginx/Dockerfile
+    volumes:
+      - ./pictureworks-legacy/pgphptest:/var/www/legacy # root needs this
+      - ./pictureworks-nginx/conf.d:/etc/nginx/conf.d
+      - ./pictureworks-nginx/certs:/etc/ssl
+    extra_hosts:
+      - "${NGINX_ALIAS}:${NGINX_IP}"
+    networks:
+      pictureworks:
+        ipv4_address: ${NGINX_IP}
+    tty: true
+    stdin_open: true
+    depends_on:
+      - pictureworks-legacy-server
+  pictureworks-pgadmin:
+    container_name: pictureworks-pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pictureworks-db-pgadmin:/var/lib/pgadmin
+    networks:
+      pictureworks:
+        ipv4_address: ${PGADMIN_IP}
+    restart: unless-stopped
+networks:
+  pictureworks:
+    name: pictureworks-bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "${NETWORK_SUBNET}"
+volumes:
+  pictureworks-legacy-db-vol:
+    driver: local
+  pictureworks-db-vol:
+    driver: local
+  pictureworks-db-pgadmin:
+    driver: local

@@ -2,6 +2,9 @@
 
 require('model.php');
 
+// echo phpinfo();
+// exit();
+
 $mydb = dbconnect();
 
 $json = file_get_contents('php://input');
