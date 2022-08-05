@@ -12,9 +12,9 @@ add_host_or_ignore() {
     fi
 }
 
-create_nginx_conf_443_entry() {
-    cp $1/conf.d.tmpl/$2-443.conf $1/conf.d/$2-443.conf
-    sed -i "s/%NGINX_ALIAS%/$NGINX_ALIAS/g" $1/conf.d/$2-443.conf
+create_nginx_conf_entry() {
+    cp $1/conf.d.tmpl/$2.conf $1/conf.d/$2.conf
+    sed -i "s/%NGINX_ALIAS%/$NGINX_ALIAS/g" $1/conf.d/$2.conf
 }
 
 gen_certs() {
@@ -36,7 +36,12 @@ init_app_env() {
 }
 
 add_host_or_ignore $NGINX_ALIAS $NGINX_IP
-add_host_or_ignore $NGINX_LEGACY_ALIAS $NGINX_LEGACY_ALIAS
-create_nginx_conf_443_entry pictureworks-nginx pictureworks-legacy
+add_host_or_ignore $NGINX_LEGACY_ALIAS $NGINX_IP
+add_host_or_ignore $PGADMIN_ALIAS $PGADMIN_IP
+
+create_nginx_conf_entry pictureworks-nginx default-80
+create_nginx_conf_entry pictureworks-nginx pictureworks-legacy-443
+create_nginx_conf_entry pictureworks-nginx pictureworks-443
+
 gen_certs pictureworks-nginx
 init_app_env pictureworks-server
