@@ -40,7 +40,7 @@ If the proctor wishes so, the applicant may discuss in the interview about his r
 ## Validating The Port's Database
 
 The new port will use Postgres instead of MySQL.
-The docker setup should automatically create a database and a pgadmin for you automatically. You just need to access the IP set in your .env under the `PGADMIN_IP` variable. This is set to `130.0.0.5` by default.
+The docker setup should automatically create a database and a pgadmin for you automatically. You just need to access [http://pictureworks-db.local.com/](http://pictureworks-db.local.com/) or whatever the value of `PGADMIN_ALIAS` in the `.env`.
 
 Don't worry about `130.x.x.x` as that's just arbitrary to the author's current setup (application 1 he's managing = 121.0.0.1, app 2 = 122.0.0.1, and so on, this is the 10th, hence, 130, you may change this to whatever but just follow the usual IP format)
 
