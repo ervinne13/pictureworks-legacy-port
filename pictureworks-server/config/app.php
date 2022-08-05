@@ -195,10 +195,6 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        /*
-         * Payroll Service PRoviders
-         */
-        App\Providers\Payroll\PayrollServiceProvider::class,
     ],
 
     /*
