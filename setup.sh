@@ -4,17 +4,18 @@ source .env
 set +o allexport
 
 add_host_or_ignore() {
-    if grep "$NGINX_ALIAS" /etc/hosts; then
-        echo "$NGINX_ALIAS already exists in /etc/hosts!"
+    if grep "$1" /etc/hosts; then
+        echo "$1 already exists in /etc/hosts!"
     else
-        echo "$NGINX_IP      $NGINX_ALIAS" >> /etc/hosts  
-        echo "Added the entry $NGINX_IP      $NGINX_ALIAS to /etc/hosts"
+        echo "$2      $1" >> /etc/hosts  
+        echo "Added the entry $2      $1 to /etc/hosts"
     fi
 }
 
-create_nginx_conf_443_entry() {
-    cp $1/conf.d.tmpl/$2-443.conf $1/conf.d/$2-443.conf
-    sed -i "s/%NGINX_ALIAS%/$NGINX_ALIAS/g" $1/conf.d/$2-443.conf
+create_nginx_conf_entry() {
+    cp $1/conf.d.tmpl/$2.conf $1/conf.d/$2.conf
+    sed -i "s/%NGINX_ALIAS%/$NGINX_ALIAS/g" $1/conf.d/$2.conf
+    sed -i "s/%NGINX_LEGACY_ALIAS%/$NGINX_LEGACY_ALIAS/g" $1/conf.d/$2.conf
 }
 
 gen_certs() {
@@ -35,7 +36,13 @@ init_app_env() {
     sed -i "s/%DB_PASSWORD%/$DB_PASSWORD/g" $1/.env
 }
 
-add_host_or_ignore
-create_nginx_conf_443_entry pictureworks-nginx pictureworks-legacy
+add_host_or_ignore $NGINX_ALIAS $NGINX_IP
+add_host_or_ignore $NGINX_LEGACY_ALIAS $NGINX_IP
+add_host_or_ignore $PGADMIN_ALIAS $PGADMIN_IP
+
+create_nginx_conf_entry pictureworks-nginx default-80
+create_nginx_conf_entry pictureworks-nginx pictureworks-legacy-443
+create_nginx_conf_entry pictureworks-nginx pictureworks-443
+
 gen_certs pictureworks-nginx
-# init_app_env app-server
+init_app_env pictureworks-server
