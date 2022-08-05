@@ -4,11 +4,11 @@ source .env
 set +o allexport
 
 add_host_or_ignore() {
-    if grep "$NGINX_ALIAS" /etc/hosts; then
-        echo "$NGINX_ALIAS already exists in /etc/hosts!"
+    if grep "$1" /etc/hosts; then
+        echo "$1 already exists in /etc/hosts!"
     else
-        echo "$NGINX_IP      $NGINX_ALIAS" >> /etc/hosts  
-        echo "Added the entry $NGINX_IP      $NGINX_ALIAS to /etc/hosts"
+        echo "$2      $1" >> /etc/hosts  
+        echo "Added the entry $2      $1 to /etc/hosts"
     fi
 }
 
@@ -35,7 +35,8 @@ init_app_env() {
     sed -i "s/%DB_PASSWORD%/$DB_PASSWORD/g" $1/.env
 }
 
-add_host_or_ignore
+add_host_or_ignore $NGINX_ALIAS $NGINX_IP
+add_host_or_ignore $NGINX_LEGACY_ALIAS $NGINX_LEGACY_ALIAS
 create_nginx_conf_443_entry pictureworks-nginx pictureworks-legacy
 gen_certs pictureworks-nginx
-# init_app_env app-server
+init_app_env pictureworks-server
