@@ -9,7 +9,7 @@ FROM php:8.1-fpm
 # here for now. Just note that these 3 are needed on prod too
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
-    install-php-extensions mbstring pdo_mysql pcntl
+    install-php-extensions mbstring pcntl pgsql pdo pdo_pgsql
 
 # ==================================================================
 # Anything we put inside here are the server production dependencies
@@ -20,7 +20,6 @@ RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
 # now, as I'm really new to 7+ php versions
 
 RUN apt-get update && apt-get install -y \ 
-    nginx \
     # mbstring pdo_mysql pcntl does not work normally, see comments above
     # JS
     nodejs\
