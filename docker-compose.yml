@@ -20,7 +20,7 @@ services:
       # wont get deleted along with the container
       - pictureworks-legacy-db-vol:/var/lib/mysql
       - ./pictureworks-legacy-db/my.cnf:/etc/mysql/my.cnf
-      - ./pictureworks-legacy-db/init.sql:/docker-entrypoint-initdb.d/init.sql  
+      - ./pictureworks-legacy-db/init.sql:/docker-entrypoint-initdb.d/init.sql
   pictureworks-legacy-server:
     container_name: pictureworks-legacy-server
     image: pictureworks-legacy-server:latest
@@ -79,7 +79,7 @@ services:
       dockerfile: ./pictureworks-server/Dockerfile
     volumes:
       - ./pictureworks-server:/var/www/pictureworks-server
-      - ./pictureworks/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./pictureworks-server/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
       pictureworks:
         aliases:
