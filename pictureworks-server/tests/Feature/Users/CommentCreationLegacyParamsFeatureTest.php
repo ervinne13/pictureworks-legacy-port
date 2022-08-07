@@ -2,14 +2,9 @@
 
 namespace Tests\Feature\Users;
 
-use App\Http\Controllers\UserCommentController;
 use App\Models\User;
-use App\Models\UserComment;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
-use Mockery\MockInterface;
 use Tests\TestCase;
 
 class CommentCreationLegacyParamsFeatureTest extends TestCase

@@ -27,5 +27,7 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="LEGACY_APP_PASSWORD_HASH" value="$2y$10$eL4ozQUSSuCDlztN9hjDxOHsvLndoKZKl22D4eT4bC7XR79KIdq4."/>
+        <env name="UNIT_TEST_APPLICATION_KEY" value="unit_testing_key"/>        
     </php>
 </phpunit>
