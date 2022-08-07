@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\User\Comment\UserCommentValidator;
 use App\Http\Requests\SaveUserCommentLegacyRequest;
 use App\Http\Requests\SaveUserCommentRequest;
-use App\Models\User;
-use App\Models\UserComment;
+use Illuminate\Database\QueryException;
 
 class UserCommentController extends Controller
 {
@@ -22,22 +21,17 @@ class UserCommentController extends Controller
         return 'OK';
     }
 
-    /**
-     * This offers 1:1 feature as the old controller except for 1 thing.
-     * This test: it_fails_to_write_due_to_any_sql_error().
-     * 
-     * When it comes to database errors, sqlite does not throw errors even
-     * if we put a string too large in it, moreover, since we are using the
-     * facade directly for the UserComment, we can't mock it out with
-     * Laravel's container. We can push to implement this as well 
-     * BUT that would we we should create a repository for the comment insertion,
-     * then mock that repository to throw an Illuminate\Database\QueryException.
-     * 
-     */
     public function storeWithLegacyRequest(SaveUserCommentLegacyRequest $request)
     {
         $this->userCommentLegacyValidator->assertRequestValid((array)$request->all());
-        $request->getModel()->save();
+
+        try {
+            $request->getModel()->save();
+        } catch (QueryException $e) {
+            // As specified in the old controller.php
+            return response("Could not update database: {$e->getMessage()}", 500);
+        }
+
         return 'OK';
     }
 }
