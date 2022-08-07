@@ -46,32 +46,27 @@ class CommentCreationLegacyParamsFeatureTest extends TestCase
     /**
      * @test
      */
-    public function it_can_write_multiple_comments_for_a_user_via_json()
+    public function it_can_write_comments_with_json()
     {
         $targetUserName = 'Ervinne Sodusta';
         $user = User::factory()->create(['name' => $targetUserName]);
 
         $pw = env("UNIT_TEST_APPLICATION_KEY");
-        $comments = [];
-        for ($i = 1; $i <= 10; $i++) {
-            $comments[] = "This is comment #{$i}";
-        }
+        $comment = 'This is a comment from Content-Type application/json';
 
         $response = $this->postJson("api/v1/comments", [
             'id' => $user->id,
-            'comments' => $comments,
+            'comments' => $comment,
             'password' => $pw
         ]);
 
         $response->assertStatus(200);
         $response->assertSeeText("OK");
 
-        foreach ($comments as $comment) {
-            $this->assertDatabaseHas('user_comments', [
-                'user_id' => $user->id,
-                'comment' => $comment
-            ]);
-        }
+        $this->assertDatabaseHas('user_comments', [
+            'user_id' => $user->id,
+            'comment' => $comment
+        ]);
     }
 
     /**

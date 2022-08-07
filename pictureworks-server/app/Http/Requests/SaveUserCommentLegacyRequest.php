@@ -27,22 +27,15 @@ class SaveUserCommentLegacyRequest extends FormRequest
         return true;
     }
 
-    public function getModels(): array
+    public function getModel(): UserComment
     {
-        $comments = [];
+        // If this was a PUT request, we load the comment instead, it's not
+        // within the scope though, so we skip that.
+        $comment = new UserComment();
+        $comment->user_id = $this->id;
+        $comment->comment = $this->comments;
 
-        if (is_string($this->comments)) {
-            $this->comments = [$this->comments];
-        }
-
-        foreach ($this->comments as $commentText) {
-            $comments[] = [
-                'user_id' => $this->id,
-                'comment' => $commentText
-            ];
-        }
-
-        return $comments;
+        return $comment;
     }
 
     /**

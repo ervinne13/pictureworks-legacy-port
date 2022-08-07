@@ -5,6 +5,12 @@ namespace App\Helpers\User\Comment;
 use App\Helpers\Validation\LegacyValidator;
 use App\Models\User;
 
+enum UserCommentValidatorBehavior
+{
+    const CHECKS_FOR_PASSWORD = 1;
+    const IGNORES_PASSWORD = 2;
+}
+
 /**
  * We can't use laravel's default validations as that returns
  * a different format, if we want a 1:1 error message copy 
@@ -14,7 +20,8 @@ use App\Models\User;
 class UserCommentValidator
 {
     public function __construct(
-        protected LegacyValidator $validator
+        protected LegacyValidator $validator,
+        protected int $validationBehavior
     ) {
     }
 
@@ -22,12 +29,17 @@ class UserCommentValidator
      * If there are actually more endpoints using the password validation, move it to a
      * middleware instead
      */
-    public function assertRequestValid($request)
+    public function assertRequestValid($data)
     {
-        $this->validator->assertAttrComplete((array) $request->all(), ['id', 'comments', 'password']);
-        $this->validator->assertPasswordCorrect($request['password']);
-        $this->assertUserIdValid($request['id']);
-        $this->assertUserExists($request['id']);
+        if ($this->validationBehavior == UserCommentValidatorBehavior::CHECKS_FOR_PASSWORD) {
+            $this->validator->assertAttrComplete($data, ['id', 'comments', 'password']);
+            $this->validator->assertPasswordCorrect($data['password']);
+        } else {
+            $this->validator->assertAttrComplete($data, ['id', 'comments']);
+        }
+
+        $this->assertUserIdValid($data['id']);
+        $this->assertUserExists($data['id']);
     }
 
     public function assertUserExists($id)

@@ -36,9 +36,8 @@ class UserCommentController extends Controller
      */
     public function storeWithLegacyRequest(SaveUserCommentLegacyRequest $request)
     {
-        $this->userCommentLegacyValidator->assertRequestValid($request);
-        UserComment::insert($request->getModels());
-
+        $this->userCommentLegacyValidator->assertRequestValid((array)$request->all());
+        $request->getModel()->save();
         return 'OK';
     }
 }
