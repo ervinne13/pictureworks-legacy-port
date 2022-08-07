@@ -20,11 +20,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::prefix('v1')->group(function () {
-    Route::resource('users.comments', UserCommentController::class)->only([
-        'store'
-        // we use a resource controller regardless and just filter
-        // just to anticipate more routes for this resource.
-    ]);
+    Route::middleware('auth.statickey')->group(function () {
+        Route::resource('users.comments', UserCommentController::class)->only([
+            'store'
+            // we use a resource controller regardless and just filter
+            // just to anticipate more routes for this resource.
+        ]);
+    });
 
+    // Note that we don't use the middleware here as the original implementation checks
+    // for input first before the password. If we want 1:1 implem, we can't include this
+    // in the middleware wrap.
     Route::post('comments', [UserCommentController::class, 'storeWithLegacyRequest']);
 });

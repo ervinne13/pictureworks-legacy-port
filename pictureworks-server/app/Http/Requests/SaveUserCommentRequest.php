@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Helpers\User\Comment\UserCommentProvider;
 use App\Models\UserComment;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 use Pictureworks\AppKeyValidator;
 
 /**
@@ -31,6 +32,8 @@ class SaveUserCommentRequest extends FormRequest implements UserCommentProvider
      */
     public function authorize()
     {
+        // This will be where we should put validations like if the user
+        // owns the comment being saved.
         return true;
     }
 
@@ -39,7 +42,7 @@ class SaveUserCommentRequest extends FormRequest implements UserCommentProvider
         // If this was a PUT request, we load the comment instead, it's not
         // within the scope though, so we skip that.
         $comment = new UserComment();
-        $comment->user_id = $this->user; // sub-resource routes automate this to {user}
+        $comment->user_id = $this->user->id;
         $comment->comment = $this->comment;
 
         return $comment;
@@ -53,7 +56,7 @@ class SaveUserCommentRequest extends FormRequest implements UserCommentProvider
     public function rules()
     {
         return [
-            'comment' => 'required'
+            'comment' => 'required|max:100'
         ];
     }
 

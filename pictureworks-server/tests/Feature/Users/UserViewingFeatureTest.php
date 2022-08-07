@@ -3,6 +3,7 @@
 namespace Tests\Feature\Feature\Users;
 
 use App\Models\User;
+use App\Models\UserComment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,10 +12,7 @@ class UserViewingFeatureTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * A basic feature test example.
-     *
      * @test
-     * @return void
      */
     public function it_can_display_a_user_given_id()
     {
@@ -28,5 +26,19 @@ class UserViewingFeatureTest extends TestCase
 
         $expectedAsset = asset("images/users/{$user->id}.jpg");
         $response->assertSee("<img src='{$expectedAsset}' />", false);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_display_comments()
+    {
+        $user = User::factory()->create();
+        $comment = UserComment::factory()->create(['user_id' => $user->id]);
+
+        $response = $this->get("/users/{$user->id}");
+
+        $response->assertStatus(200);
+        $response->assertSeeText($comment->comment);
     }
 }

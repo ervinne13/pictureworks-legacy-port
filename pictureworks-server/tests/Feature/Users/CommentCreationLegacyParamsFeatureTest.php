@@ -2,10 +2,14 @@
 
 namespace Tests\Feature\Users;
 
+use App\Http\Controllers\UserCommentController;
 use App\Models\User;
+use App\Models\UserComment;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class CommentCreationLegacyParamsFeatureTest extends TestCase
@@ -24,7 +28,7 @@ class CommentCreationLegacyParamsFeatureTest extends TestCase
         $ts = Carbon::now()->toDateTimeString();
         $comment = "This is a test comment {$ts}";
 
-        $response = $this->postJson("api/v1/comments", [
+        $response = $this->post("api/v1/comments", [
             'id' => $user->id,
             'comments' => $comment,
             'password' => $pw
@@ -37,6 +41,37 @@ class CommentCreationLegacyParamsFeatureTest extends TestCase
             'user_id' => $user->id,
             'comment' => $comment
         ]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_write_multiple_comments_for_a_user_via_json()
+    {
+        $targetUserName = 'Ervinne Sodusta';
+        $user = User::factory()->create(['name' => $targetUserName]);
+
+        $pw = env("UNIT_TEST_APPLICATION_KEY");
+        $comments = [];
+        for ($i = 1; $i <= 10; $i++) {
+            $comments[] = "This is comment #{$i}";
+        }
+
+        $response = $this->postJson("api/v1/comments", [
+            'id' => $user->id,
+            'comments' => $comments,
+            'password' => $pw
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertSeeText("OK");
+
+        foreach ($comments as $comment) {
+            $this->assertDatabaseHas('user_comments', [
+                'user_id' => $user->id,
+                'comment' => $comment
+            ]);
+        }
     }
 
     /**
@@ -66,6 +101,22 @@ class CommentCreationLegacyParamsFeatureTest extends TestCase
         $response->assertStatus(401);
         $content = $response->getContent();
         $this->assertEquals('Invalid password', $content);
+    }
+
+    /**
+     * @test
+     */
+    public function it_fails_to_write_if_id_is_invalid()
+    {
+        $response = $this->post("api/v1/comments", [
+            'id' => 'adfasdf',
+            'comments' => "Doesn't matter, should fail",
+            'password' => env("UNIT_TEST_APPLICATION_KEY")
+        ]);
+
+        $response->assertStatus(422);
+        $content = $response->getContent();
+        $this->assertEquals('Invalid id', $content);
     }
 
     /**

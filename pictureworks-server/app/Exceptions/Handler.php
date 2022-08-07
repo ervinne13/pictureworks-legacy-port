@@ -62,6 +62,10 @@ class Handler extends ExceptionHandler
 
         $this->renderable(function (CommentSaveException $e, $request) {
             $code = 500;
+            if ($e->getCode() == CommentSaveExceptionCode::INVALID_ID) {
+                $code = 422;
+            }
+
             if ($e->getCode() == CommentSaveExceptionCode::UNREGISTERED_USER) {
                 $code = 404;
             }

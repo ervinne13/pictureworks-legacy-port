@@ -18,10 +18,15 @@ class UserCommentValidator
     ) {
     }
 
+    /**
+     * If there are actually more endpoints using the password validation, move it to a
+     * middleware instead
+     */
     public function assertRequestValid($request)
     {
         $this->validator->assertAttrComplete((array) $request->all(), ['id', 'comments', 'password']);
         $this->validator->assertPasswordCorrect($request['password']);
+        $this->assertUserIdValid($request['id']);
         $this->assertUserExists($request['id']);
     }
 
@@ -30,6 +35,13 @@ class UserCommentValidator
         $user = User::find($id);
         if (!$user) {
             throw CommentSaveException::fromUnregisteredUser($id);
+        }
+    }
+
+    public function assertUserIdValid($id)
+    {
+        if (!is_numeric($id)) {
+            throw CommentSaveException::fromInvalidUserId($id);
         }
     }
 }

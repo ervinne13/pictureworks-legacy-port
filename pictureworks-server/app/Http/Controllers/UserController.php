@@ -18,7 +18,8 @@ class UserController extends Controller
         return view('users.show', [
             'title' => "User Card - {$name}",
             'id' => $user->id,
-            'name' => $user->name
+            'name' => $user->name,
+            'comments' => $user->comments
         ]);
     }
 }
