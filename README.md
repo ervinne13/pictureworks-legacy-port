@@ -4,6 +4,36 @@ The deliverables said to provide "A single laravel application that can replace 
 
 __With a budget of 8 hours, let's try to go above and beyond just providing a new Laravel app and try to showcase how we would handle legacy systems like we do with our usual work.__ Development time is documented via Clickup.
 
+## Available Routes
+
+We ran out of time but ideally, we should've used something like: https://beyondco.de/docs/laravel-apidoc-generator/getting-started/generating-documentation.
+
+For now, let's manually do the documentation:
+
+|Method|Path|Dest|
+|-|-|-|
+|GET|users/{id}|UserController@show|
+|POST|api/v1/users/{user}/comments|UserCommentController@store|
+|POST|api/v1/comments|UserCommentController@storeWithLegacyRequest|
+
+### Web Route GET `/users{1}`
+
+This displays the user and his comments if it exists. it should look something like:
+
+![users/1 Screenshot](./docs/img/Screenshot%20from%202022-08-07%2014-53-50.png)
+
+### API Route POST `api/v1/users/{user}/comments`
+
+This is the API route designed if the restrictions of 1:1 is lifted. It uses a proper route where the subject of the update is in the route param - `user`, and only the `comment` and the `password` is in the request body. Notice the use of singular `comment` instead of `comments`.
+
+![Port API](./docs/img/postman/Screenshot%20from%202022-08-07%2023-28-11.png)
+
+### API Route POST `api/v1/comments`
+
+This is a 1:1 copy of the original controller.php route relating to writing a comment.
+
+![Legacy Ported API](./docs/img/postman/Screenshot%20from%202022-08-07%2023-32-11.pngIlluminate\Database\QueryException)
+
 ## Requirements
 
 In order to make the most of this project. The author, Ervinne Sodusta recommends to run this with `docker` and `docker compose`:
