@@ -33,9 +33,9 @@ Access the alias in your browser: https://pictureworks-legacy.local.com?id=1
 
 You will be prompted with a "Your connection is not private" error as we are using self signed certificates to implement a locally enabled ssl. Simply click on "Advanced" and "Proceed to pictureworks-legacy.local.com (unsafe)" to proceed to the application and you should see the following if `./setup.sh` did it's job right.
 
-If the proctor wishes so, the applicant may discuss in the interview about his reasoning why he would normally develop with ssl right away starting from his local environment.
-
 ![John Smith's Profile](./docs/img/Screenshot%20from%202022-08-05%2022-28-42.png)
+
+If the proctor wishes so, the applicant may discuss in the interview about his reasoning why he would normally develop with ssl right away starting from his local environment.
 
 ## Validating The Port's Database
 
@@ -48,7 +48,12 @@ Once you're able to access pgadmin, simply register a new server using the detai
 
 ## Validating the Laravel Port
 
-WIP
+Set it up first with:
+
+```
+docker exec -it pictureworks-server php artisan key:generate
+docker exec -it pictureworks-server php artisan migrate:refresh --seed
+```
 
 ## Development Methodology
 
