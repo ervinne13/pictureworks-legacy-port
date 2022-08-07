@@ -107,6 +107,17 @@ docker exec -it pictureworks-server php artisan key:generate
 docker exec -it pictureworks-server php artisan migrate:refresh --seed
 ```
 
+If in case this fails and it says that the autoload.php can't be loaded. Then it probably means we are running this project in a folder owned by `root`.
+
+We can fix this by running
+
+```
+docker exec -it pictureworks-server composer install
+docker exec -it pictureworks-server composer dump-autoload
+```
+
+as likely the composer commands failed when docker tried to set it up. Then try to run key generate and the migrations again.
+
 After setting up, visiting `https://pictureworks.local.com/users/1` (or use the virtual host you specified in the `NGINX_ALIAS` if you changed it). You should see the following:
 
 ![users/1 Screenshot](./docs/img/Screenshot%20from%202022-08-07%2014-53-50.png)
