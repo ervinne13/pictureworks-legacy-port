@@ -26,13 +26,31 @@ This displays the user and his comments if it exists. it should look something l
 
 This is the API route designed if the restrictions of 1:1 is lifted. It uses a proper route where the subject of the update is in the route param - `user`, and only the `comment` and the `password` is in the request body. Notice the use of singular `comment` instead of `comments`.
 
+__This is NOT the answer to the instructions__, merely an additional route to represent what could be some improvements we can do if we are not constrained by a 1:1 copy of the old API signature.
+
 ![Port API](./docs/img/postman/Screenshot%20from%202022-08-07%2023-28-11.png)
+
+
+Example uri: `api/v1/users/1/comments` where 1 is the id of the user we will attach the comment to.
+|Parameter|Desc|
+|-|-|
+|comment|String, max 100 characters, the comment to attach to the {user}|
+|password|A static value that serves as the application key|
+
+The applicant also suggests that instad of a static application key passed in the body of the request, we can either do usual oath or jwt keys in the bearer token representing the current user (and we will have to update the route so that it wont contiain the user id). Or use something like this: https://github.com/ervinne13/mutual-authentication-protected-server
 
 ### API Route POST `api/v1/comments`
 
 This is a 1:1 copy of the original controller.php route relating to writing a comment.
+This is the actual answer to the ask in the PDF file instructions.
 
-![Legacy Ported API](./docs/img/postman/Screenshot%20from%202022-08-07%2023-32-11.pngIlluminate\Database\QueryException)
+![Legacy Ported API](./docs/img/postman/Screenshot%20from%202022-08-07%2023-32-11.png)
+
+|Parameter|Desc|
+|-|-|
+|id|The id of the user where we will attach the comment to|
+|comment|String, max 100 characters, the comment to attach to the {user}|
+|password|A static value that serves as the application key|
 
 ## Requirements
 
