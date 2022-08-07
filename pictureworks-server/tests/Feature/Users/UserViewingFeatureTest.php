@@ -20,6 +20,7 @@ class UserViewingFeatureTest extends TestCase
     {
         $targetUserName = 'Ervinne Sodusta';
         $user = User::factory()->create(['name' => $targetUserName]);
+
         $response = $this->get("/users/{$user->id}");
 
         $response->assertStatus(200);

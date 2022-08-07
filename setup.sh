@@ -34,6 +34,8 @@ init_app_env() {
     sed -i "s/%DB_NAME%/$DB_NAME/g" $1/.env
     sed -i "s/%DB_USERNAME%/$DB_USERNAME/g" $1/.env
     sed -i "s/%DB_PASSWORD%/$DB_PASSWORD/g" $1/.env
+
+    sed -i "s/%LEGACY_APP_PASSWORD_HASH%/$LEGACY_APP_PASSWORD_HASH/g" $1/.env
 }
 
 add_host_or_ignore $NGINX_ALIAS $NGINX_IP
