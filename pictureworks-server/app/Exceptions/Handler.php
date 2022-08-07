@@ -2,6 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\User\Comment\CommentSaveException;
+use App\Helpers\User\Comment\CommentSaveExceptionCode;
+use App\Helpers\Validation\LegacyValidationFailedException;
+use App\Helpers\Validation\LegacyValidationFailedExceptionCode;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
@@ -45,6 +49,28 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        $this->renderable(function (LegacyValidationFailedException $e, $request) {
+            $code = 422;
+            if ($e->getCode() == LegacyValidationFailedExceptionCode::INVALID_PASS) {
+                $code = 401;
+            }
+
+            return response($e->getMessage(), $code);
+        });
+
+        $this->renderable(function (CommentSaveException $e, $request) {
+            $code = 500;
+            if ($e->getCode() == CommentSaveExceptionCode::INVALID_ID) {
+                $code = 422;
+            }
+
+            if ($e->getCode() == CommentSaveExceptionCode::UNREGISTERED_USER) {
+                $code = 404;
+            }
+
+            return response($e->getMessage(), $code);
         });
     }
 }
