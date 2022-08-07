@@ -32,10 +32,13 @@ init_app_env() {
     sed -i "s/%NGINX_ALIAS%/$NGINX_ALIAS/g" $1/.env
     sed -i "s/%DB_IP%/$DB_IP/g" $1/.env
     sed -i "s/%DB_NAME%/$DB_NAME/g" $1/.env
+    sed -i "s/%DB_PORT%/$DB_PORT/g" $1/.env
     sed -i "s/%DB_USERNAME%/$DB_USERNAME/g" $1/.env
     sed -i "s/%DB_PASSWORD%/$DB_PASSWORD/g" $1/.env
+    sed -i "s/%DB_PASSWORD%/$DB_PASSWORD/g" $1/.env
 
-    sed -i "s/%LEGACY_APP_PASSWORD_HASH%/$LEGACY_APP_PASSWORD_HASH/g" $1/.env
+    # The value of the hash can possibly have / so let's use a different delimiter
+    sed -i "s|%LEGACY_APP_PASSWORD_HASH%|$LEGACY_APP_PASSWORD_HASH|g" $1/.env
 }
 
 add_host_or_ignore $NGINX_ALIAS $NGINX_IP
